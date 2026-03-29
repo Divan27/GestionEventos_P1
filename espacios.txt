@@ -1,0 +1,3 @@
+La Gran via,VIP,3,V1,V2,V3
+Centro de Eventos,General,3,G1,G2,G3
+Galeria Turrialba,Platea,6,P1,P2,P3,P4,P5,P6
