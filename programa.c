@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gestionSitios.h"
+#include "gestionEspacios.h"
 
 #define MAX 50
 
@@ -37,9 +38,6 @@ int login() {
     }
 }
 
-void gestionEspacios() {
-    printf("\n--- Gestion de Espacios ---\n");
-}
 
 void gestionEventos() {
     printf("\n--- Gestion de Eventos ---\n");
