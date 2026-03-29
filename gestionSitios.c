@@ -1,14 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "gestionSitios.h"
 
 #define MAX 200
 
-typedef struct {
-    char nombre[100];
-    char ubicacion[100];
-    char web[100];
-} Sitio;
 
 Sitio **sitios = NULL; // 🔹 arreglo de punteros
 int cantidadSitios = 0;
@@ -129,10 +125,9 @@ void listarSitios() {
     printf("---------------------------------------\n");
 
     for (int i = 0; i < cantidadSitios; i++) {
-        printf("%s - %s - %s\n",
-               sitios[i]->nombre,
-               sitios[i]->ubicacion,
-               sitios[i]->web);
+        printf("Nombre del sitio: %s",sitios[i]->nombre);
+        printf("\nUbicacion del sitio: %s",sitios[i]->ubicacion);
+        printf("\nSitio web del sitio: %s\n\n",sitios[i]->web);
     }
 }
 
