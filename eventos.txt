@@ -1,0 +1,1 @@
+Graduacion,Filma,25 de diciembre,Centro de Eventos,General:5000.00,d:G1,v:G2,G3
