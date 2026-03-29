@@ -6,10 +6,10 @@
 #define MAX 200
 
 
-Sitio **sitios = NULL; // 🔹 arreglo de punteros
+Sitio **sitios = NULL; 
 int cantidadSitios = 0;
 
-// 🔹 Verificar duplicado por nombre
+// Verificar duplicado por nombre
 int existeSitio(char nombre[]) {
     for (int i = 0; i < cantidadSitios; i++) {
         if (strcmp(sitios[i]->nombre, nombre) == 0) {
