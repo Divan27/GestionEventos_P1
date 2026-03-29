@@ -1,7 +1,6 @@
 #ifndef GESTION_SITIOS_H
 #define GESTION_SITIOS_H
 
-// DEFINICIÓN DEL STRUCT 
 typedef struct {
     char nombre[100];
     char ubicacion[100];
