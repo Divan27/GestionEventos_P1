@@ -97,23 +97,29 @@ static Evento *cargarEventos(int *total) {
 
         int i = 0;
 
+        // Datos principales
         leerCampo(linea, &i, ev.nombre);
         leerCampo(linea, &i, ev.productora);
         leerCampo(linea, &i, ev.fecha);
         leerCampo(linea, &i, ev.sitio);
 
+        // Procesar sectores
         while (linea[i] != '\0') {
 
             char campo[200];
             leerCampo(linea, &i, campo);
 
-            if (strchr(campo, ':') && campo[0] != 'd') {
+            // detectar sector (Nombre:precio)
+            if (strchr(campo, ':') &&
+                !(campo[0] == 'd' && campo[1] == ':') &&
+                !(campo[0] == 'v' && campo[1] == ':')) {
 
                 char nombreSector[100];
                 float costo;
 
                 sscanf(campo, "%[^:]:%f", nombreSector, &costo);
 
+                // 🔹 crecer arreglo
                 Sector *temp = realloc(ev.sectores,
                     (ev.totalSectores + 1) * sizeof(Sector));
 
@@ -127,22 +133,52 @@ static Evento *cargarEventos(int *total) {
                 s->costo = costo;
                 strcpy(s->disponibles, "");
 
-                // leer disponibles (d:)
+                // 🔹 leer disponibles (d:)
                 if (linea[i] == 'd' && linea[i + 1] == ':') {
                     i += 2;
                     leerLista(linea, &i, s->disponibles);
                 }
 
-                // saltar vendidos (v:)
+                // 🔹 saltar vendidos (v:)
                 if (linea[i] == 'v' && linea[i + 1] == ':') {
+
                     i += 2;
-                    while (linea[i] != ',' && linea[i] != '\0') i++;
+
+                    while (linea[i] != '\0') {
+
+                        // si llega a coma → avanzar y salir
+                        if (linea[i] == ',') {
+                            i++;
+                            break;
+                        }
+
+                        // detectar nuevo sector manualmente
+                        int k = i;
+
+                        while (linea[k] != ':' &&
+                               linea[k] != '\0' &&
+                               linea[k] != ',') {
+                            k++;
+                        }
+
+                        if (linea[k] == ':') {
+
+                            if (!(linea[i] == 'd' && linea[i + 1] == ':') &&
+                                !(linea[i] == 'v' && linea[i + 1] == ':')) {
+
+                                break; // nuevo sector
+                            }
+                        }
+
+                        i++;
+                    }
                 }
 
                 ev.totalSectores++;
             }
         }
 
+        // agregar evento
         Evento *tempEv = realloc(eventos, (count + 1) * sizeof(Evento));
         if (!tempEv) return NULL;
 
