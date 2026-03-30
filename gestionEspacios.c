@@ -4,11 +4,42 @@
 #include "gestionEspacios.h"
 
 
-// Acceso a variables globales de sitios
+
+/*
+Acceso a variables globales definidas en gestionSitios.
+
+- sitios: arreglo dinámico de punteros a estructuras Sitio.
+- cantidadSitios: número total de sitios registrados.
+
+Se utilizan para permitir que este arhcivo pueda trabajar con
+los sitios previamente cargados en el sistema.
+*/
 extern Sitio **sitios;
 extern int cantidadSitios;
 
-// Mostrar espacios desde archivo
+
+/*
+FUNCION: mostrarEspacios
+
+OBJETIVO:
+Mostrar todos los espacios registrados en el archivo espacios.txt.
+
+ENTRADAS:
+- No recibe parámetros.
+
+SALIDAS:
+- Imprime en consola la lista de sitios y sus espacios asociados.
+
+RESTRICCIONES:
+- El archivo espacios.txt debe existir.
+- El formato esperado del archivo es:
+  sitio,espacio,cantidad,lista de identificadores
+
+DESCRIPCION:
+Lee cada línea del archivo espacios.txt, separa sus campos
+usando sscanf y muestra la información organizada.
+Si el archivo no existe, indica que no hay espacios asignados.
+*/
 void mostrarEspacios() {
     FILE *file = fopen("espacios.txt", "r");
 
@@ -33,9 +64,9 @@ void mostrarEspacios() {
                             sitio, espacio, &cantidad, lista);
 
         if (campos >= 3) {
-            printf("Sitio de evento: %s\n",sitio);
-            printf("Espacio de evento: %s\n",espacio);
-            printf("Cantidad de espacios: %d\n",cantidad);
+            printf("Sitio de evento: %s\n", sitio);
+            printf("Espacio de evento: %s\n", espacio);
+            printf("Cantidad de espacios: %d\n", cantidad);
 
             if (campos == 4) {
                 printf("Lista de espacios: %s\n", lista);
@@ -48,7 +79,37 @@ void mostrarEspacios() {
     fclose(file);
 }
 
-// Agregar espacios a un sitio
+
+/*
+FUNCION: agregarEspacios
+
+OBJETIVO:
+Permitir agregar un nuevo conjunto de espacios a un sitio existente.
+
+ENTRADAS:
+- No recibe parámetros directamente.
+- Solicita al usuario:
+  - sitio al que se asignarán los espacios
+  - nombre del espacio
+  - cantidad de espacios
+  - letra inicial de identificación
+
+SALIDAS:
+- Guarda el nuevo espacio en el archivo espacios.txt.
+
+RESTRICCIONES:
+- Debe existir al menos un sitio cargado desde antes.
+- El nombre del espacio no debe contener espacios.
+- La cantidad debe ser un número positivo.
+
+DESCRIPCION:
+El usuario selecciona un sitio registrado.
+Luego ingresa el nombre del espacio, cantidad de lugares
+y una letra inicial para generar identificadores automáticos
+
+Los datos se guardan en el archivo en formato:
+sitio,espacio,cantidad,A1,A2,A3
+*/
 void agregarEspacios() {
 
     if (cantidadSitios == 0) {
@@ -94,7 +155,6 @@ void agregarEspacios() {
         return;
     }
 
-    // 🔹 Guardar formato: sitio,espacio,cantidad,V1,V2...
     fprintf(file, "%s,%s,%d", s->nombre, nombreEspacio, cantidad);
 
     for (int i = 1; i <= cantidad; i++) {
@@ -108,6 +168,31 @@ void agregarEspacios() {
     printf("Espacios agregados correctamente.\n");
 }
 
+
+/*
+FUNCION: resetEspacios
+
+OBJETIVO:
+Eliminar un registro de espacios específico del archivo espacios.txt.
+
+ENTRADAS:
+- No recibe parámetros directamente.
+- Solicita al usuario seleccionar el registro a eliminar.
+
+SALIDAS:
+- Elimina el registro seleccionado del archivo.
+
+RESTRICCIONES:
+- Debe existir al menos un registro en el archivo.
+- El usuario debe confirmar la eliminación.
+
+DESCRIPCION:
+Muestra un menú con los registros disponibles.
+El usuario selecciona el registro a eliminar y confirma si esta totalmente seguro.
+
+El archivo se reescribe quitando la línea eliminada, utilizando un archivo temporal (temp.txt).
+Finalmente se libera la memoria utilizada.
+*/
 void resetEspacios() {
 
     FILE *file = fopen("espacios.txt", "r");
@@ -117,11 +202,33 @@ void resetEspacios() {
         return;
     }
 
-    char lineas[200][300];
+    char buffer[300];
+    char **lineas = NULL;
     int total = 0;
 
-    // 🔹 Leer todas las líneas
-    while (fgets(lineas[total], sizeof(lineas[total]), file) != NULL) {
+    // lectura de archivo
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+
+        char *linea = (char *)malloc(strlen(buffer) + 1);
+
+        if (linea == NULL) {
+            printf("Error de memoria.\n");
+            fclose(file);
+            return;
+        }
+
+        strcpy(linea, buffer);
+
+        char **temp = realloc(lineas, (total + 1) * sizeof(char *));
+
+        if (temp == NULL) {
+            printf("Error de memoria.\n");
+            fclose(file);
+            return;
+        }
+
+        lineas = temp;
+        lineas[total] = linea;
         total++;
     }
 
@@ -132,7 +239,6 @@ void resetEspacios() {
         return;
     }
 
-    // Mostrar como menú numerado
     printf("\n--- ESPACIOS REGISTRADOS ---\n");
 
     for (int i = 0; i < total; i++) {
@@ -158,7 +264,6 @@ void resetEspacios() {
         printf("\n");
     }
 
-    // Selección
     int opcion;
     printf("Seleccione el espacio a eliminar: ");
     scanf("%d", &opcion);
@@ -168,39 +273,71 @@ void resetEspacios() {
         return;
     }
 
-    // Confirmación
     char confirmacion;
     printf("Seguro que desea eliminar este registro? (s/n): ");
     scanf(" %c", &confirmacion);
 
     if (confirmacion != 's' && confirmacion != 'S') {
+
         printf("Operacion cancelada.\n");
+
+        for (int i = 0; i < total; i++) {
+            free(lineas[i]);
+        }
+        free(lineas);
+
         return;
     }
 
-    // Reescribir archivo sin la línea seleccionada
-    FILE *temp = fopen("temp.txt", "w");
+    FILE *tempFile = fopen("temp.txt", "w");
 
-    if (temp == NULL) {
+    if (tempFile == NULL) {
         printf("Error al crear archivo temporal.\n");
         return;
     }
 
     for (int i = 0; i < total; i++) {
         if (i != (opcion - 1)) {
-            fputs(lineas[i], temp);
+            fputs(lineas[i], tempFile);
         }
     }
 
-    fclose(temp);
+    fclose(tempFile);
 
     remove("espacios.txt");
     rename("temp.txt", "espacios.txt");
 
     printf("Espacio eliminado correctamente.\n");
+
+    for (int i = 0; i < total; i++) {
+        free(lineas[i]);
+    }
+    free(lineas);
 }
 
-// Menú de gestión de espacios
+
+/*
+FUNCION: gestionEspacios
+
+OBJETIVO:
+Mostrar el menú principal del módulo de gestión de espacios.
+
+ENTRADAS:
+- No recibe parámetros.
+
+SALIDAS:
+- Permite al usuario interactuar con las funciones.
+
+RESTRICCIONES:
+- La opción ingresada debe ser válida.
+
+DESCRIPCION:
+Implementa un menú repetitivo que permite:
+1. Mostrar espacios registrados
+2. Agregar nuevos espacios
+3. Eliminar espacios de un sitio
+4. Volver al menú principal
+*/
 void gestionEspacios() {
     int op;
 
