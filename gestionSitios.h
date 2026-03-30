@@ -1,13 +1,14 @@
 #ifndef GESTION_SITIOS_H
 #define GESTION_SITIOS_H
 
+// DEFINICIÓN DEL STRUCT 
 typedef struct {
     char nombre[100];
     char ubicacion[100];
     char web[100];
 } Sitio;
 
-// variables globales con extern
+// variables globales
 extern Sitio **sitios;
 extern int cantidadSitios;
 
