@@ -12,6 +12,8 @@
 #include "gestionEventos.h"
 #include "estadoEventos.h"
 #include "consultaEvento.h"
+#include "compraBoletos.h"
+#include "listaFacturas.h"
 
 #define MAX 50   // tamaño máximo para usuario y contraseña
 
@@ -75,7 +77,7 @@ int login() {
     Actualmente es una función base que se completará posteriormente.
 */
 void listaFacturas() {
-    printf("\n--- Lista de Facturas ---\n");
+    mostrarFacturas();
 }
 
 
@@ -126,7 +128,7 @@ void opcionesGenerales() {
                 break;
 
             case 2:
-                printf("\nModulo de compra en desarrollo...\n");
+                compraBoletos();
                 break;
 
             case 3:
