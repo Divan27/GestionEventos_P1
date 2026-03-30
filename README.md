@@ -245,6 +245,42 @@ sitios[i]->nombre
 
 ---
 
+##  Justificación de toma de decisiones
+
+### a. Uso de punteros en el sistema
+
+En el proyecto se usaron punteros principalmente para poder trabajar con **memoria dinámica** y estructuras que crecen según la información de los archivos.
+
+Por ejemplo, al cargar sitios o eventos no se sabe cuántos habrá, entonces se usa `realloc` para ir ampliando el arreglo en tiempo de ejecución. Esto hace el programa más flexible.
+
+También se usan punteros para **evitar copias innecesarias** de datos grandes (como structs), accediendo directamente con la flechita `->`, lo cual mejora el rendimiento.
+
+Además, los punteros permiten trabajar **por referencia**, lo que significa que una función puede modificar directamente una variable externa.
+
+* Paso por valor: no cambia el dato original
+* Paso por referencia: sí modifica el dato original
+
+Esto se usa bastante en funciones que procesan información del archivo.
+
+---
+
+### b. Modularidad y ocultamiento de información
+
+El sistema está dividido en varios archivos (`.c` y `.h`), donde cada uno tiene una función específica, como manejar sitios, eventos o facturas.
+
+Esto permite:
+
+* Mantener el código ordenado
+* Facilitar el mantenimiento
+* Reutilizar funciones
+
+Los archivos `.h` solo muestran las funciones necesarias, mientras que la lógica interna queda en los `.c`, lo que ayuda a **ocultar detalles de implementación**.
+
+También se usan funciones generales en `utils.c` para evitar repetir código, como leer datos del archivo o procesar fechas.
+
+---
+
+
 ##  Consideraciones importantes
 
 * Los archivos deben existir o serán creados automáticamente
