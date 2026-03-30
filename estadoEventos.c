@@ -2,8 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include "estadoEventos.h"
+#include "utils.h"
 
+/*
+Estructura que representa un sector dentro de un evento.
 
+Campos:
+- nombre: nombre del sector 
+- costo: precio del asiento en ese sector
+- disponibles: lista de asientos disponibles separados por coma
+- vendidos: lista de asientos vendidos separados por coma
+*/
 typedef struct {
     char nombre[100];
     float costo;
@@ -11,6 +20,18 @@ typedef struct {
     char vendidos[200];
 } Sector;
 
+
+/*
+Estructura que representa un evento.
+
+Campos:
+- nombre: nombre del evento
+- productora: empresa productora del evento
+- fecha: fecha del evento
+- sitio: lugar donde se realiza el evento
+- sectores: arreglo dinámico de sectores del evento
+- totalSectores: cantidad total de sectores
+*/
 typedef struct {
     char nombre[100];
     char productora[100];
@@ -21,71 +42,31 @@ typedef struct {
 } Evento;
 
 
-// Contar asientos
-int contarAsientos(char lista[]) {
-    if (strlen(lista) == 0) return 0;
 
-    int count = 1;
-    for (int i = 0; lista[i]; i++) {
-        if (lista[i] == ',') count++;
-    }
-    return count;
-}
+/*
+FUNCION: cargarEventos
 
+OBJETIVO:
+Leer el archivo eventos.txt y cargar todos los eventos.
 
-// Leer campo hasta la coma
-void leerCampo(char *linea, int *i, char *destino) {
-    int j = 0;
+ENTRADAS:
+- totalEventos: puntero donde se almacenará la cantidad de eventos cargados.
 
-    while (linea[*i] != ',' && linea[*i] != '\0') {
-        destino[j++] = linea[*i];
-        (*i)++;
-    }
+SALIDAS:
+- Retorna un arreglo dinámico de estructuras Evento.
+- totalEventos contendrá la cantidad total de eventos encontrados.
 
-    destino[j] = '\0';
+RESTRICCIONES:
+- El archivo eventos.txt debe existir.
+- El formato del archivo debe cumplir la estructura:
+  nombre,productora,fecha,sitio,sector:costo,d:lista,v:lista,...
+Para así poder ser analizada correctamente
 
-    if (linea[*i] == ',') (*i)++;
-}
-
-
-// Leer lista de asientos
-void leerLista(char *linea, int *i, char *destino) {
-    int j = 0;
-
-    while (linea[*i] != '\0') {
-
-        // detener si viene v:
-        if (linea[*i] == 'v' && linea[*i + 1] == ':') {
-            break;
-        }
-
-        // detener si viene nuevo sector
-        if (linea[*i] != 'd' && linea[*i] != 'v') {
-            char *p = &linea[*i];
-            char *coma = strchr(p, ',');
-            char *dosPuntos = strchr(p, ':');
-
-            if (dosPuntos && (!coma || dosPuntos < coma)) {
-                break;
-            }
-        }
-
-        destino[j++] = linea[*i];
-        (*i)++;
-    }
-
-    destino[j] = '\0';
-
-    // limpiar coma inicial
-    if (destino[0] == ',') {
-        memmove(destino, destino + 1, strlen(destino));
-    }
-
-    if (linea[*i] == ',') (*i)++;
-}
-
-
-// Cargar eventos 
+DESCRIPCION:
+Lee línea por línea el archivo de eventos, separa los campos principales
+y luego procesa cada sector con sus asientos disponibles y vendidos.
+Estamos utilizando memoria dinámica realloc para almacenar los eventos y sectores.
+*/
 Evento *cargarEventos(int *totalEventos) {
 
     FILE *file = fopen("eventos.txt", "r");
@@ -109,13 +90,13 @@ Evento *cargarEventos(int *totalEventos) {
 
         int i = 0;
 
-        // datos base
+        // leer datos base del evento
         leerCampo(linea, &i, ev.nombre);
         leerCampo(linea, &i, ev.productora);
         leerCampo(linea, &i, ev.fecha);
         leerCampo(linea, &i, ev.sitio);
 
-        // sectores
+        // leer sectores
         while (linea[i] != '\0') {
 
             char campo[200];
@@ -143,13 +124,13 @@ Evento *cargarEventos(int *totalEventos) {
                 strcpy(s->disponibles, "");
                 strcpy(s->vendidos, "");
 
-                // leer d: y v:
+                // leer listas de asientos
                 while (linea[i] != '\0') {
 
                     if (linea[i] == 'd' && linea[i + 1] == ':') {
                         i += 2;
 
-                        while (linea[i] == ' ') i++; // limpiar espacios
+                        while (linea[i] == ' ') i++;
 
                         leerLista(linea, &i, s->disponibles);
                     }
@@ -193,7 +174,25 @@ Evento *cargarEventos(int *totalEventos) {
 }
 
 
-// Mostrar detalle
+/*
+FUNCION: mostrarDetalleEvento
+
+OBJETIVO:
+Mostrar en pantalla toda la información detallada de un evento.
+
+ENTRADAS:
+- ev: puntero a la estructura Evento que se desea mostrar.
+
+SALIDAS:
+- Imprime en consola el detalle del evento y sus sectores.
+
+RESTRICCIONES:
+- El evento debe haber sido cargado previamente.
+
+DESCRIPCION:
+Muestra información general del evento y calcula la recaudación
+de cada sector en base a la cantidad de asientos vendidos.
+*/
 void mostrarDetalleEvento(Evento *ev) {
 
     printf("\n--- DETALLE DEL EVENTO ---\n");
@@ -224,7 +223,27 @@ void mostrarDetalleEvento(Evento *ev) {
 }
 
 
-// Mostrar eventos
+/*
+FUNCION: mostrarEventos
+
+OBJETIVO:
+Mostrar la lista de eventos disponibles y permitir seleccionar uno.
+
+ENTRADAS:
+- No recibe parámetros.
+
+SALIDAS:
+- Muestra en consola la lista de eventos y su detalle.
+
+RESTRICCIONES:
+- El archivo eventos.txt debe existir.
+- Debe existir al menos un evento registrado.
+
+DESCRIPCION:
+Carga los eventos desde el archivo, muestra un menú de selección
+y permite ver el detalle de un evento específico.
+También libera la memoria dinámica utilizada.
+*/
 void mostrarEventos() {
 
     int totalEventos = 0;
@@ -252,7 +271,7 @@ void mostrarEventos() {
 
     mostrarDetalleEvento(&eventos[opcion - 1]);
 
-    // 🔹 liberar memoria
+    // liberar memoria dinámica
     for (int i = 0; i < totalEventos; i++) {
         free(eventos[i].sectores);
     }
@@ -260,7 +279,25 @@ void mostrarEventos() {
 }
 
 
-// Menú
+/*
+FUNCION: estadoEventos
+
+OBJETIVO:
+Mostrar el menú principal del módulo de estado de eventos.
+
+ENTRADAS:
+- No recibe parámetros.
+
+SALIDAS:
+- Permite al usuario navegar entre opciones del menú.
+
+RESTRICCIONES:
+- La opción ingresada debe ser válida.
+
+DESCRIPCION:
+Implementa un menú repetitivo que permite consultar
+los eventos registrados o volver al menú principal.
+*/
 void estadoEventos() {
 
     int op;
