@@ -90,26 +90,29 @@ Evento *cargarEventos(int *totalEventos) {
 
         int i = 0;
 
-        // leer datos base del evento
+        // 🔹 Datos base
         leerCampo(linea, &i, ev.nombre);
         leerCampo(linea, &i, ev.productora);
         leerCampo(linea, &i, ev.fecha);
         leerCampo(linea, &i, ev.sitio);
 
-        // leer sectores
+        // 🔹 Procesar sectores
         while (linea[i] != '\0') {
 
             char campo[200];
             leerCampo(linea, &i, campo);
 
-            // detectar sector
-            if (strchr(campo, ':') && campo[0] != 'd' && campo[0] != 'v') {
+            // detectar sector válido
+            if (strchr(campo, ':') &&
+                !(campo[0] == 'd' && campo[1] == ':') &&
+                !(campo[0] == 'v' && campo[1] == ':')) {
 
                 char nombreSector[100];
                 float costo;
 
                 sscanf(campo, "%[^:]:%f", nombreSector, &costo);
 
+                // crecer arreglo
                 Sector *temp = realloc(ev.sectores,
                     (ev.totalSectores + 1) * sizeof(Sector));
 
@@ -124,47 +127,30 @@ Evento *cargarEventos(int *totalEventos) {
                 strcpy(s->disponibles, "");
                 strcpy(s->vendidos, "");
 
-                // leer listas de asientos
-                while (linea[i] != '\0') {
+                // leer d:
+                if (linea[i] == 'd' && linea[i + 1] == ':') {
+                    i += 2;
+                    leerLista(linea, &i, s->disponibles);
+                }
 
-                    if (linea[i] == 'd' && linea[i + 1] == ':') {
-                        i += 2;
-
-                        while (linea[i] == ' ') i++;
-
-                        leerLista(linea, &i, s->disponibles);
-                    }
-
-                    if (linea[i] == 'v' && linea[i + 1] == ':') {
-                        i += 2;
-
-                        while (linea[i] == ' ') i++;
-
-                        leerLista(linea, &i, s->vendidos);
-                        break;
-                    }
-
-                    // detectar nuevo sector
-                    if (strchr(&linea[i], ':') &&
-                        linea[i] != 'd' && linea[i] != 'v') {
-                        break;
-                    }
-
-                    i++;
+                // leer v:
+                if (linea[i] == 'v' && linea[i + 1] == ':') {
+                    i += 2;
+                    leerLista(linea, &i, s->vendidos);
                 }
 
                 ev.totalSectores++;
             }
         }
 
+        // guardar evento
         Evento *tempEv = realloc(eventos,
             (countEventos + 1) * sizeof(Evento));
 
         if (!tempEv) return NULL;
 
         eventos = tempEv;
-        eventos[countEventos] = ev;
-        countEventos++;
+        eventos[countEventos++] = ev;
     }
 
     fclose(file);
@@ -172,7 +158,6 @@ Evento *cargarEventos(int *totalEventos) {
     *totalEventos = countEventos;
     return eventos;
 }
-
 
 /*
 FUNCION: mostrarDetalleEvento
