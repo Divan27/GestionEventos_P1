@@ -101,7 +101,7 @@ Ejemplo:
 Desde la terminal, ubicarse en la carpeta del proyecto y ejecuta:
 
 ```bash
-gcc programa.c gestionSitios.c gestionEspacios.c gestionEventos.c estadoEventos.c consultaEvento.c listaFacturas.c utils.c -o programa.exe
+gcc programa.c gestionSitios.c gestionEspacios.c gestionEventos.c estadoEventos.c consultaEvento.c utils.c compraBoletos.c listaFacturas.c -o programa.exe
 ```
 
 ---
