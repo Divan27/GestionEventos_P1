@@ -118,12 +118,30 @@ RESTRICCIONES:
 ------------------------------------------------------------
 */
 void leerLista(char *linea, int *i, char *destino) {
+
     int j = 0;
 
     while (linea[*i] != '\0') {
 
-        // detener si inicia sección de vendidos
+        // detener si inicia vendidos
         if (linea[*i] == 'v' && linea[*i + 1] == ':') break;
+
+        // detectar posible nuevo sector manualmente
+        int k = *i;
+
+        while (linea[k] != ':' && linea[k] != '\0' && linea[k] != ',') {
+            k++;
+        }
+
+        if (linea[k] == ':') {
+
+            // verificar que NO sea d: ni v:
+            if (!(linea[*i] == 'd' && linea[*i + 1] == ':') &&
+                !(linea[*i] == 'v' && linea[*i + 1] == ':')) {
+
+                break; // 🔥 nuevo sector detectado
+            }
+        }
 
         destino[j++] = linea[*i];
         (*i)++;
@@ -131,7 +149,7 @@ void leerLista(char *linea, int *i, char *destino) {
 
     destino[j] = '\0';
 
-    // eliminar coma inicial si existe
+    // limpiar coma inicial
     if (destino[0] == ',') {
         memmove(destino, destino + 1, strlen(destino));
     }
