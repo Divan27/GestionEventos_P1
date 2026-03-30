@@ -244,7 +244,59 @@ sitios[i]->nombre
 7. Ver estado actualizado
 
 ---
+## Análisis de resultados del sistema
 
+En general, el sistema desarrollado cumple con la mayoría de los requerimientos planteados, especialmente en el módulo de **Opciones Administrativas**, donde se logró implementar correctamente:
+
+* Gestión de Sitios de Eventos
+* Gestión de espacios de sitios
+* Gestión de Eventos
+* Estado de evento
+* Lista de facturas
+
+La única funcionalidad que no fue desarrollada corresponde a **Estadísticas**, quedando como mejora futura.
+
+---
+
+###  Evaluación funcional
+
+Las funcionalidades implementadas permiten:
+
+* Cargar, almacenar y mostrar información desde archivos `.txt`
+* Gestionar eventos con sectores y asientos
+* Realizar compras y actualizar disponibilidad en tiempo real
+* Generar y listar facturas correctamente
+
+Esto demuestra que la lógica principal del sistema está **operativa y coherente** con el flujo esperado.
+
+---
+
+### Limitaciones detectadas
+
+Durante la ejecución del programa se identificaron algunos problemas principalmente relacionados con validaciones:
+
+*  Falta de validación de fechas (formatos incorrectos pueden afectar comparaciones)
+*  No se controla correctamente la entrada de datos no numéricos en menús (`scanf`)
+*  Ingreso de letras en opciones numéricas puede generar comportamientos inesperados o bucles
+*  Algunas validaciones de datos de entrada (como campos vacíos o formatos incorrectos) no están completamente controladas
+
+---
+
+###  Opciones generales
+
+El módulo de **Opciones Generales** se encuentra prácticamente completo:
+
+* Consulta de eventos 
+* Compra de boletos 
+
+Sin embargo, al igual que en el módulo administrativo, presenta debilidades en:
+
+* Validación de entradas del usuario
+* Control de errores en datos ingresados
+
+Lo que puede afectar el flujo del programa si el usuario ingresa información no esperada.
+
+---
 ##  Justificación de toma de decisiones
 
 ### a. Uso de punteros en el sistema
