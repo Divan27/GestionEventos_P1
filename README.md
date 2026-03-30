@@ -109,7 +109,7 @@ gcc programa.c gestionSitios.c gestionEspacios.c gestionEventos.c estadoEventos.
 ## Ejecución
 
 ```bash
-./programa.exe
+.\programa.exe
 ```
 
 ---
